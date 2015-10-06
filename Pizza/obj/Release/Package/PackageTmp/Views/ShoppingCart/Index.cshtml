@@ -1,0 +1,116 @@
+﻿@model Pizza.Models.ShoppingCartViewModel
+@{
+    ViewBag.Title = "Shopping Cart";
+    Layout = null;
+}
+<script src="/Scripts/jquery-1.4.4.min.js"
+        type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        // Document.ready -> link up remove event handler
+        $(".RemoveLink").click(function () {
+            // Get the id from the link
+            var recordToDelete = $(this).attr("data-id");
+            if (recordToDelete != '') {
+                // Perform the ajax post
+                $.post("/ShoppingCart/RemoveFromCart", { "id": recordToDelete },
+                    function (data) {
+                        // Successful requests get here
+                        // Update the page elements
+                        if (data.ItemCount == 0) {
+                            $('#row-' + data.DeleteId).fadeOut('slow');
+                        } else {
+                            $('#item-count-' + data.DeleteId).text(data.ItemCount);
+                        }
+                        $('#cart-total').text(data.CartTotal);
+                        $('#update-message').text(data.Message);
+                        $('#cart-status').text('Cart (' + data.CartCount + ')');
+                    });
+            }
+        });
+
+        $(".AddLink").click(function () {
+            // Get the id from the link
+            var recordToAdd = $(this).attr("data-id");
+            if (recordToAdd != '') {
+                // Perform the ajax post
+                $.post("/ShoppingCart/AddToCartManually/" + recordToAdd,
+                    function (data) {
+                        // Successful requests get here
+                        // Update the page elements
+                        if (data.ItemCount == 0) {
+                            $('#row-' + data.DeleteId).fadeOut('slow');
+                        } else {
+                            $('#item-count-' + data.DeleteId).text(data.ItemCount);
+                        }
+                        $('#cart-total').text(data.CartTotal);
+                        $('#update-message').text(data.Message);
+                        $('#cart-status').text('Cart (' + data.CartCount + ')');
+                    });
+            }
+        });
+    });
+</script>
+<div class="row" style="padding: 15px; overflow:auto;">
+    <div id="update-message">
+    </div>
+    <table class="table">
+        <tr>
+            <th>
+                Item
+            </th>
+            <th>
+                Qty
+            </th>
+            <th>
+                Price (each)
+            </th>
+            <th></th>
+        </tr>
+        @foreach (var item in Model.CartItems)
+        {
+            <tr id="row-@item.RecordId">
+                <td style="height:30px">
+                    @if (item.Item.name.Length > 10)
+                    {
+                        @Html.ActionLink(item.Item.name.Substring(0, 10), "Details", "Store", new { id = item.ItemId }, null)
+                    }
+                    else
+                    {
+                        @Html.ActionLink(item.Item.name, "Details", "Store", new { id = item.ItemId }, null)
+                    }
+
+                </td>
+                <td id="item-count-@item.RecordId">
+                    @item.Count
+                </td>
+                <td>
+                    @item.Item.price
+                </td>
+                <td>
+                    <a href="" class="AddLink btn btn-xs btn-success"
+                       data-id="@item.RecordId">
+                        +
+                    </a>
+                    <a href="" class="RemoveLink btn btn-xs btn-danger"
+                       data-id="@item.RecordId">
+                        -
+                    </a>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <b>Total</b>
+            </td>
+            <td></td>
+            <td></td>
+            <td id="cart-total">
+                <b>@Model.CartTotal.ToString("0.00")</b>
+            </td>
+        </tr>
+    </table>
+    <p class="float-right">
+        @Html.ActionLink("Order", "AddressAndPayment", "Checkout", null, new { @class = "btn btn-primary btn-md" })
+    </p>
+</div>

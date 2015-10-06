@@ -1,0 +1,271 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pizza Online</title>
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>*@
+    @*<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>*@
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+    <script src="Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="signalr/hubs"></script>
+    <script>
+        var isInsideOrder = false;
+
+        session = function (a, b, c, d, e) {
+            this.self = this;
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+            this.e = e;
+        }
+
+        sessionManager = function () {
+            self = this;
+            this.sessions = ko.observableArray([]);
+            this.pageSize = ko.observable(1000);
+            this.currentPage = ko.observable(1);
+
+            this.pushSessions = function (PizzaOnline) {
+                this.sessions.removeAll();
+
+                for (var i = 0; i < PizzaOnline.length; i++) {
+                    var s = PizzaOnline[i];
+                    this.sessions.push(new session(s.id, s.phone, s.adress, s.datetime, s.sum));
+                }
+            }
+
+            this.showSessions = ko.computed(function () {
+                var startIndex = this.pageSize() * (this.currentPage() - 1);
+                var endIndex = startIndex + this.pageSize();
+                var result = this.sessions.slice(startIndex, endIndex);
+                return result;
+            }, this);
+        }
+
+        var vm = new sessionManager();
+
+        $(document).ready(function () {
+
+            ko.applyBindings(vm);
+
+            var x = $.connection.orderHub;
+            x.client.updateSessions = function (sessions) {
+                vm.pushSessions(sessions);
+            }
+
+            $.connection.hub.start().done(function () {
+                x.server.getSessions();
+                //playSound();
+            });
+        });
+
+    </script>
+    <style>
+        #minuteButtons {
+            padding-left: 10px;
+        }
+
+            #minuteButtons label {
+                width: 140px;
+            }
+    </style>
+</head>
+<body>
+    <style>
+        body {
+            font-size: 20px;
+        }
+    </style>
+    <audio id="alertOrderReceived" src="/Audio/Mario Jump Sound Effect.mp3"></audio>
+
+    <table id="tableOrders" class="table table-responsive">
+        <thead>
+            <tr style="background: #428bca; color: #ffffff;">
+                <th>Id</th>
+                <th>Phone</th>
+                <th>Adress</th>
+                <th>Date and Time</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: showSessions">
+            <tr>
+                <td><div data-bind="text: a"></div></td>
+                <td><div data-bind="text: b"></div></td>
+                <td><div data-bind="text: c"></div></td>
+                <td><div data-bind="text: d"></div></td>
+                <td style="text-align:right; width:50px;"><div data-bind="text: e"></div></td>
+                <td style="text-align:right; width:170px"><button style="width:170px" class="btn btn-primary btn-lg set-delay order-details" data-bind="attr: {'data-id': a}" data-toggle="modal" data-target="#myModal">Open</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel"><b>Order details</b></h4>
+                </div>
+                <div class="modal-body">
+                    <form id="mainForm" action="/Home/SetDelay" method="post" class="form-horizontal">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="orderId" name="id" value="" />
+                        <div id="minuteButtons" class="btn-group" data-toggle="buttons">
+                            <div class="row">
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option1" autocomplete="off" value="5"> 5 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option2" autocomplete="off" value="10"> 10 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg active">
+                                    <input type="radio" name="options" id="option3" autocomplete="off" value="15" checked> 15 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option4" autocomplete="off" value="20"> 20 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option5" autocomplete="off" value="25"> 25 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option6" autocomplete="off" value="30"> 30 Minutes
+                                </label>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option7" autocomplete="off" value="35"> 35 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option8" autocomplete="off" value="40"> 40 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option9" autocomplete="off" value="45"> 45 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option10" autocomplete="off" value="50"> 50 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option11" autocomplete="off" value="55"> 55 Minutes
+                                </label>
+                                <label class="btn btn-primary btn-lg">
+                                    <input type="radio" name="options" id="option12" autocomplete="off" value="60"> 60 Minutes
+                                </label>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <table class="table table-responsive">
+                                <thead>
+                                    <tr>
+                                        <td>
+                                            Name
+                                        </td>
+                                        <td>
+                                            Quantity
+                                        </td>
+                                        <td>
+                                            Price
+                                        </td>
+                                        <td>
+                                            Sum
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableDetails">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="sendDelayButton">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#sendDelayButton').click(function () {
+            submitForm($(this));
+        });
+
+
+        function submitForm() {
+            var disabled = $('#mainForm').find(':input:disabled').removeAttr('disabled');
+            var data = $('#mainForm').serialize();
+            disabled.attr('disabled', 'disabled');
+
+            var url = $('#mainForm').attr('action');
+            $.post(url, data, function (d) {
+                if (d.success == true) {
+                    location.reload(true);
+                }
+                else {
+                }
+            }, 'json');
+        }
+
+        $("#tableOrders").on('click', '.set-delay', function () {
+            $('#orderId').val($(this).data('id'));
+        });
+
+        $("#tableOrders").on('click', '.order-details', function () {
+            var orderId = $('#orderId').val();
+
+            $('#tableDetails').empty();
+
+            $.ajax({
+                url: '/PizzaOnline/GetOrderDetails',
+                data: { id: orderId },
+                async: false,
+                success: function (r) {
+                    if (r.success == true) {
+                        users = r.data;
+                        for (var i = 0; i < users.length; i++) {
+                            $('#tableDetails').append('<tr>'
+                                + '<td>' + users[i].itemName + '</td>'
+                                + '<td>' + users[i].quantity + '</td>'
+                                + '<td>' + users[i].price + '</td>'
+                                + '<td>' + users[i].sum + '</td>'
+                                + '</tr>');
+                        }
+                        $('#tableDetails').append('<tr>'
+                               + '<td></td>'
+                               + '<td></td>'
+                               + '<td><b>Total: </b></td>'
+                               + '<td><b>' + r.total + '</b></td>'
+                               + '</tr>');
+                    }
+                },
+                dataType: 'json',
+                cache: false
+            });
+
+        });
+
+        function playSound() {
+            alertOrderReceived.play();
+        }
+
+    </script>
+</body>
+</html>

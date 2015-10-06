@@ -1,0 +1,106 @@
+﻿@using Pizza.Models
+@model Pizza.Models.CategoryViewModelList
+@{
+    ViewBag.Title = "Home Page";
+}
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="Scripts/jquery-scrolltofixed.js"></script>
+<div class="row">
+    <div class="col-lg-2 hidden-md hidden-sm hidden-xs">
+    </div>
+    <div class="col-sm-8 col-md-8 col-lg-7">
+        <div class="" id="site-wrapper">
+            <div id="head-menu-wrapper">
+                <div id="logo-container">
+                    <img src="img/logo.png" alt="Golex logo">
+                </div>
+                <div id="hours-container" class="hidden-xs hidden-sm hidden-md">
+                    <img src="img/hours01.png" alt="Open hours">
+                </div>
+                <div id="phone-container">
+                    <span class="glyphicon glyphicon-earphone"></span> <a href="tel:0413-13324">0413-133 24</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="slider-container">
+                <img src="img/pizza.jpg" alt="pizza" class="img-responsive">
+            </div>
+            <div id="content-wrapper">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <img src="./img/free_delivery.png" alt="Gratis hemhörning" class="img-responsive img-center hidden-xs">
+                        <img src="./img/free_delivery_box.png" alt="Gratis hemhörning" class="img-responsive img-center visible-xs">
+                    </div>
+                </div>
+                @foreach (var category in Model.items)
+                {
+                    <a name="@category.shortName" class="anchor"></a>
+                    <h1>@category.name</h1>
+                    <h3>@category.description</h3>
+                    <div class="row">
+                        <ol class="menu">
+                            @foreach (var item in category.items)
+                            {
+                                <li class="col-md-12"><a href="/ShoppingCart/AddToCart/@item.id">@item.name<br><span class="ingredients">@item.description</span><span class="price">@item.price.ToString("0.00")</span></a></li>
+                            }
+                        </ol>
+                    </div>
+                }
+
+                <a name="kontakt" class="anchor"></a>
+                <h1>Kontakta Oss</h1>
+                <div class="row limit-shoping-cart">
+                    <div class="col-md-5">
+                        <h2>Adress &amp; Telefon</h2>
+                        <hr>
+                        <p><span class="glyphicon glyphicon-map-marker"></span> Köpmansgatan 8, 241 30 Eslov</p>
+                        <p><span class="glyphicon glyphicon-earphone"></span> <a href="tel:0413-13324">0413 - 133 24</a></p>
+                        <h2>Öppettider</h2>
+                        <hr>
+                        <p>Sön-Tors: 15 <sup>00</sup> - 22 <sup>00</sup></p>
+                        <p>Fre-Lör: 15 <sup>00</sup> - 03 <sup>00</sup></p>
+                    </div>
+                    <div class="col-md-7">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d2240.439517367877!2d13.3035643!3d55.837687100000004!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4653952b919848a1%3A0x83904d2d039f3f8e!2sK%C3%B6pmansgatan+8!5e0!3m2!1sen!2s!4v1402410946259" id="google_maps"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="top-menu-wrapper">
+            @foreach (var item in Model.items)
+            {
+                <a href="#@item.shortName">@item.shortName</a>
+            }
+            <a href="#kontakt">Kontakt</a>
+            <a class="shopping-cart-counter" href="#shoppingcart">Shopping Cart (@Model.countItems)</a>
+        </div>
+    </div>
+    <div class="col-sm-4 col-lg-3 col-md-4" id="cart-wrapper" style="min-width:280px; ">
+        <div class="row">
+            @Html.Partial("_LoginPartial")
+        </div>
+        <div class="row"><hr /></div>
+        <a name="shoppingcart" class="anchor"></a>
+        <h2 class="text-center">Shopping  Cart</h2>
+        @Html.Action("Index", "ShoppingCart")
+    </div>
+</div>
+<script>
+    $(window).scroll(function () {
+        localStorage['page'] = document.URL.split('#')[0];
+        localStorage['scrollTop'] = $(document).scrollTop();
+    });
+
+    $(document).ready(function () {
+        if (localStorage['page'] == document.URL.split('#')[0]) {
+            $(document).scrollTop(localStorage['scrollTop']);
+        }
+    });
+
+    $('#cart-wrapper').scrollToFixed({ marginTop: 10, limit: $($('.limit-shoping-cart')[0]).offset().top });
+</script>
+
+
+
+

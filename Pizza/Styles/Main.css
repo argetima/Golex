@@ -1,0 +1,296 @@
+﻿.jumbotron 
+{
+    background-image: url(/img/banner.jpg);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 470px;
+}
+
+.float-right 
+{
+    float: right;
+}
+
+@font-face {
+	font-family: 'Indie Flower';
+	src: url('/fonts/IndieFlower.ttf') format("truetype"); /* Make sure your file location is right */
+}
+
+html, body {
+	background: url(../img/background01.jpg) #392e26;
+	color: #fff;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 13px;
+	padding: 5px;
+	overflow-x: hidden;
+}
+
+h1, h3 {
+	text-align: center;
+	font-family: 'Indie Flower', cursive;
+	text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+	font-size: 50px;
+	margin-bottom: 15px;
+	color: #f6ab23;
+	margin-top: 50px;
+}
+
+h3 {
+	margin-top: 5px;
+	margin-bottom: 15px;
+	color: #fff;
+}
+
+h2 {
+	font-family: 'Indie Flower', cursive;
+	text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+	margin-bottom: 5px;
+}
+
+hr {
+	border-top-color: #392e26;
+	margin: 5px 0;
+}
+
+a {
+	color: #f6ab23;
+}
+
+a:hover {
+	color: #c3021d;
+}
+
+a.anchor {
+	margin-top: 75px;
+}
+
+@media screen and (min-width: 992px) {
+
+	#top-menu-wrapper {
+	}
+
+	#top-menu-wrapper a {
+		font-size: 24px;
+		padding: 20px 15px;
+	}
+
+
+}
+
+@media screen and (max-width: 991px) {
+
+	#top-menu-wrapper {
+	}
+
+	#top-menu-wrapper a {
+		font-size: 18px;
+		padding: 0px 5px 0px 5px;
+	}
+
+}
+
+
+#top-menu-wrapper {
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	background: url(../img/header_bg.jpg) 20% 0 #251a10;
+	text-align: center;
+	width: 100%;
+	z-index: 10;
+	padding-bottom: 10px;
+	border-top: 5px solid rgba(246, 171, 35, .5);
+	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
+}
+
+#top-menu-wrapper a {
+	display: inline-block;
+	font-family: 'Indie Flower', cursive;
+	color: #f6ab23;
+}
+
+
+@media screen and (min-width: 768px) {
+
+	#phone-container {
+		font-size: 36px;
+		padding: 10px 10px;
+	}
+
+	#phone-container .glyphicon {
+		font-size: 28px;
+	}
+
+	#logo-container {
+		padding: 10px;
+	}
+
+	#logo-container img {
+		height: 60px;
+	}
+
+}
+
+@media screen and (max-width: 767px) {
+
+	#phone-container {
+		font-size: 20px;
+		padding: 20px 5px 0px 0px;
+	}
+
+	#phone-container .glyphicon {
+		font-size: 18px;
+	}
+
+	#logo-container {
+		padding: 15px 0px 0px 5px;
+	}
+
+	#logo-container img {
+		height: 35px;
+	}
+
+}
+
+#phone-container {
+	float: right;
+	font-weight: 700;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, .75);
+}
+
+#phone-container .glyphicon {
+	color: #c3021d;
+}
+
+#logo-container {
+	float: left;
+}
+
+#logo-container img {
+	width: auto;
+}
+
+#site-wrapper {
+	background-color: #261d16;
+	border: 2px solid #111;
+	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+	padding: 0;
+	margin-top: 20px;
+}
+
+#cart-wrapper {
+	background-color: #261d16;
+	border: 2px solid #111;
+	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+	padding: 10px;
+	margin-top: 20px;
+}
+
+#head-menu-wrapper {
+	position: relative;
+	background: url(../img/header_bg.jpg) 50% 0 #251a10;
+	height: 80px;
+	border-bottom: 2px solid #111;
+}
+
+#hours-container {
+	position: absolute;
+	top: -8px;
+	right: 260px;
+
+}
+
+
+#content-wrapper {
+	border-top: 2px solid #111;
+	padding: 10px;
+}
+
+.mnenu {
+}
+
+.menu li {
+	position: relative;
+	margin-right: 20px;
+	font-weight: 700;
+	clear: both;
+	padding: 2px 5px;
+}
+
+.menu li:hover {
+	background-color: rgba(246, 171, 35, .2) !important;
+}
+
+.menu li:nth-child(odd) {
+	background-color: rgba(255, 255, 255, .05);
+}
+
+.menu li:nth-child(even) {
+	background-color: rgba(0, 0, 0, .2);
+}
+
+.menu li .ingredients {
+	display: inline-block;
+	font-weight: 400;
+	color: #ddd;
+	margin-right: 55px;
+}
+
+.menu li .price {
+	position: absolute;
+	right: 5px;
+	top: 2px;
+	font-weight: 700;
+	text-align: right;
+}
+
+#hamburger-row {
+	min-height: 60px;
+}
+
+.text {
+	padding: 10px;
+	background-color: rgba(0, 0, 0, .15) !important;
+	width: 90%;
+	margin: 0 auto;
+	text-align: center;
+	border-radius: 5px;
+	border: 2px solid rgba(0, 0, 0, .3);
+	margin-top: -22px;
+}
+
+.text span {
+	display: inline-block;
+	padding: 0 20px;
+}
+
+#google_maps {
+	width: 100%;
+	height: 250px;
+	border: 5px solid #392e26;
+}
+
+#footer {
+	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 100px;
+}
+
+.img-center
+{
+	margin: 0 auto;
+}
+
+.navbar-inverse {
+    background-color: #261d16;
+    margin: 0px;
+    padding: 0px;
+}
+
+#totalBigFont {
+    font-weight: bold;
+    font-size: 14pt;
+}
