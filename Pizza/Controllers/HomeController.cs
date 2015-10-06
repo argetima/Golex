@@ -15,7 +15,7 @@ namespace Pizza.Controllers
 
         public ActionResult Index()
         {
-            CategoryViewModelList model = new CategoryViewModelList();
+            CategoryViewModelList model = new CategoryViewModelList(); 
             model.items = new List<Category>();
             model.items = db.category.Include("items").ToList();
 
