@@ -93,7 +93,6 @@
         }
     </style>
     <audio id="alertOrderReceived" src="/Audio/Mario Jump Sound Effect.mp3"></audio>
-
     <table id="tableOrders" class="table table-responsive">
         <thead>
             <tr style="background: #428bca; color: #ffffff;">
@@ -189,9 +188,7 @@
                                         </td>
                                     </tr>
                                 </thead>
-                                <tbody id="tableDetails">
-
-                                </tbody>
+                                <tbody id="tableDetails"></tbody>
                             </table>
                         </div>
                     </form>
@@ -199,7 +196,40 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="sendDelayButton">Save changes</button>
-                    <input id="Button1" onclick="javascript: CallPrint('myModal')" class="button" type="button" value="Print" />
+                    <input id="Button1" onclick="javascript: CallPrint('PrintOrder')" class="button" type="button" value="Print" />
+                </div>
+                <div id="PrintOrder">
+                    <label>Argetim Ahmeti 049642226</label><br /><br />
+                    <address>Address: Prishtine</address>
+                    <address>Order Number: 15</address>
+                    <address>Time: 15:39:55</address>
+                    <span>-------------------------</span>
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <td>
+                                    Name
+                                </td>
+                                <td>
+                                    Quantity
+                                </td>
+                                <td>
+                                    Price
+                                </td>
+                                <td>
+                                    Sum
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody id="TableOrder">
+                            <tr>
+                                <td>Pizza</td>
+                                <td>5</td>
+                                <td>2.5<td>
+                                <td>10.55</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -210,6 +240,8 @@
         });
 
         function CallPrint(strid) {
+            alert();
+            //$('#PrintOrder').print();
             var prtContent = document.getElementById(strid);
             var docwrite = prtContent.innerHTML;
             var WinPrint = window.open('', '', 'left=0,top=0,toolbar=0,status=0');
@@ -219,7 +251,6 @@
             WinPrint.focus();
             WinPrint.print();
             WinPrint.close();
-            //          prtContent.innerHTML=strOldOne;
         }
 
 
@@ -278,6 +309,37 @@
 
         function playSound() {
             alertOrderReceived.play();
+        }
+
+        function OrderProperties() {
+            var orderId = $('#orderId').val();
+
+            $.ajax({
+                url: '/PizzaOnline/GetOrderDetails',
+                data: { id: orderId },
+                async: false,
+                success: function (r) {
+                    if (r.success == true) {
+                        users = r.data;
+                        for (var i = 0; i < users.length; i++) {
+                            $('#tableDetails').append('<tr>'
+                                + '<td>' + users[i].itemName + '</td>'
+                                + '<td>' + users[i].quantity + '</td>'
+                                + '<td>' + users[i].price + '</td>'
+                                + '<td>' + users[i].sum + '</td>'
+                                + '</tr>');
+                        }
+                        $('#tableDetails').append('<tr>'
+                               + '<td></td>'
+                               + '<td></td>'
+                               + '<td><b>Total: </b></td>'
+                               + '<td><b>' + r.total + '</b></td>'
+                               + '</tr>');
+                    }
+                },
+                dataType: 'json',
+                cache: false
+            });
         }
 
     </script>
