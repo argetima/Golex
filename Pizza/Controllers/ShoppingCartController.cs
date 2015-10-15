@@ -18,7 +18,7 @@ namespace Pizza.Controllers
             {
                 CartItems = cart.GetCartItems(),
                 CartTotal = cart.GetTotal()
-            };
+            };  
             // Return the view
             return View(viewModel);
         }

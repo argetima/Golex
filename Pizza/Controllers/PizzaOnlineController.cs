@@ -32,7 +32,7 @@ namespace Pizza.Controllers
 
             var firstItem = details.FirstOrDefault();
 
-            return Json(new { success = true, data = model, datetime = firstItem.order.datetime, total = firstItem.order.Total.ToString("0.00") }, JsonRequestBehavior.AllowGet);
+            return Json(new { success = true, data = model, datetime = firstItem.order.datetime, total = firstItem.order.Total.ToString("0.00"), orderNumber = firstItem.id, clientName = firstItem.order.username, address = firstItem.order.Address, phone = firstItem.order.Phone, dateTime = firstItem.order.datetime.ToString("HH:MM:ss")}, JsonRequestBehavior.AllowGet);
         }
 
 	}
