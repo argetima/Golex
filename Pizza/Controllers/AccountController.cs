@@ -16,7 +16,7 @@ namespace Pizza.Controllers
     public class AccountController : Controller
     {
         private UserStore<ApplicationUser> userStore;
-        private UserManager<ApplicationUser> userManager;
+        private UserManager<ApplicationUser> userManager; 
         private PasswordHasher passwordHasher;
         private bool APPLY_USER_LOCKOUT = false;
 
