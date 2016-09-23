@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Pizza.Models
 {
@@ -8,14 +12,41 @@ namespace Pizza.Models
         public bool active { get; set; }
         public string address { get; set; }
         public string place { get; set; }
-        public string phone { get; set; }
         //public string email { get; set; }
+
+        public string Name { get; set; }
+
+        //[Required]
+        public string CountryCode { get; set; }
+
+        public string AuthyUserId { get; set; }
+
+        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
+        {
+            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
+            var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
+            // Add custom user claims here
+            return userIdentity;
+        }
 
         public override string ToString()
         {
             return string.Format("{0} - {1}", Id, UserName);
         }
     }
+
+    //public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    //{
+    //    public ApplicationDbContext()
+    //        : base("pizza", throwIfV1Schema: false)
+    //    {
+    //    }
+
+    //    public static ApplicationDbContext Create()
+    //    {
+    //        return new ApplicationDbContext();
+    //    }
+    //}
 
     //public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     //{

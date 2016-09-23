@@ -11,6 +11,7 @@ namespace Pizza.Controllers
     {
         private DatabaseContext db = new DatabaseContext();
 
+        [Authorize]
         public ActionResult Index(int branch = 0)
         {
             ViewBag.branch = branch;

@@ -9,6 +9,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using Pizza.Models;
+using Twilio;
+using System.Data.Entity.Validation;
 
 namespace Pizza.Controllers
 {
@@ -16,7 +18,8 @@ namespace Pizza.Controllers
     public class AccountController : Controller
     {
         private UserStore<ApplicationUser> userStore;
-        private UserManager<ApplicationUser> userManager; 
+        private ApplicationUserManager userManager;
+        private ApplicationSignInManager _signInManager;
         private PasswordHasher passwordHasher;
         private bool APPLY_USER_LOCKOUT = false;
 
@@ -24,16 +27,29 @@ namespace Pizza.Controllers
         {
             DatabaseContext db = new DatabaseContext();
             userStore = new UserStore<ApplicationUser>(db);
-            userManager = new UserManager<ApplicationUser>(userStore);
+            userManager = new ApplicationUserManager(userStore);
+            UserManager = userManager;
             passwordHasher = new PasswordHasher();
         }
 
-        public AccountController(UserManager<ApplicationUser> userManager)
+        public AccountController(ApplicationUserManager userManager)
         {
             UserManager = userManager;
         }
 
-        public UserManager<ApplicationUser> UserManager { get; private set; }
+        public ApplicationSignInManager SignInManager
+        {
+            get
+            {
+                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>("");
+            }
+            private set
+            {
+                _signInManager = value;
+            }
+        }
+
+        public ApplicationUserManager UserManager { get; private set; }
 
         //
         // GET: /Account/Login
@@ -156,25 +172,79 @@ namespace Pizza.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
+            if (model.PhoneNumber.Substring(0, 3) == "049")
+                model.CountryCode = "386";
+            else
+                model.CountryCode = "377";
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser() { 
                     UserName = model.UserName, 
-                    Email = model.email, 
-                    phone = model.phone, 
+                    Email = model.email,
+                    PhoneNumber = String.Format("+{0}{1}", model.CountryCode, model.PhoneNumber),
                     address = model.address, 
                     active = true,
-                    PasswordHash = passwordHasher.HashPassword(model.Password)
+                    PasswordHash = passwordHasher.HashPassword(model.Password),
+                    CountryCode = model.CountryCode,
+                    Name = "",
+                    EmailConfirmed = false,
+                    PhoneNumberConfirmed = false,
+                    TwoFactorEnabled = false,
+                    LockoutEnabled = false,
+                    AccessFailedCount = 0
                 };
-                userManager.Create(user);
+                try
+                {
+                    var result = await UserManager.CreateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+
+                        //await UserManager.RequestPhoneNumberConfirmationTokenAsync(user.Id);
+
+                        return RedirectToAction("VerifyRegistrationCode", new { message = ApplicationMessages.VerificationCodeSent });
+                    }
+                }
+                catch (DbEntityValidationException dbEx)
+                {
+                    foreach (var validationErrors in dbEx.EntityValidationErrors)
+                    {
+                        foreach (var validationError in validationErrors.ValidationErrors)
+                        {
+                            System.Diagnostics.Trace.TraceInformation("Property: {0} Error: {1}",
+                                                    validationError.PropertyName,
+                                                    validationError.ErrorMessage);
+                        }
+                    }
+                }
+                    
                 
+
                 //var result = await UserManager.CreateAsync(user, model.Password);
+
+                return RedirectToAction("VerifyRegistrationCode", new { message = ApplicationMessages.VerificationCodeSent });
+
+                //try
+                //{
+
+                //    string AccountSid = "ACe57456e19af8e8ed260e7e4823bf7c59";
+                //    string AuthToken = "e9b900ff25402260d3b67dfb2641c30b";
+                //    var twilio = new TwilioRestClient(AccountSid, AuthToken);
+                //    var message = twilio.SendMessage(
+                //      "+12565768040", "+38649642226",
+                //      "Kodi yt eshte 123456"
+                //    );
+
+                //    Console.WriteLine(message.Sid);
+                //}
+                //catch { }
                 
-                
+
                 //if (result.Succeeded)
                 //{
                 //    await SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Home");
+                //return RedirectToAction("Index", "Home");
                 //}
                 //else
                 //{
@@ -194,6 +264,76 @@ namespace Pizza.Controllers
             cart.MigrateCart(UserName);
             Session[ShoppingCart.CartSessionKey] = UserName;
         }
+
+        public async Task<ActionResult> ResendVerificationCode(ResendVerifyCodeViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", ApplicationMessages.UserNotFoundForGivenEmail);
+                return View(model);
+            }
+            if (user.PhoneNumberConfirmed)
+            {
+                ModelState.AddModelError("", ApplicationMessages.UserAlreadyConfirmed);
+                return View(model);
+            }
+
+            //await UserManager.RequestPhoneNumberConfirmationTokenAsync(user.Id);
+            return RedirectToAction("VerifyRegistrationCode", new { message = ApplicationMessages.VerificationCodeResent });
+        }
+
+        [AllowAnonymous]
+        public ActionResult VerifyRegistrationCode(string message)
+        {
+            ViewBag.Message = message;
+            return View(new VerifyCodeViewModel());
+        }
+
+        //
+        // POST: /Account/VerifyCode
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> VerifyRegistrationCode(VerifyCodeViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", ApplicationMessages.UserNotFoundForGivenEmail);
+                return View(model);
+            }
+            if (user.PhoneNumberConfirmed)
+            {
+                ModelState.AddModelError("", ApplicationMessages.UserAlreadyConfirmed);
+                return View(model);
+            }
+
+            var result = await UserManager.ConfirmPhoneNumberAsync(user.Id, model.Code);
+
+            if (result.Succeeded)
+            {
+                await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                await UserManager.SendSmsAsync(user.Id, ApplicationMessages.SignupComplete);
+                return RedirectToAction("Status");
+            }
+            else
+            {
+                AddErrors(result);
+                return View(model);
+            }
+        }
+
 
         //
         // POST: /Account/Disassociate
@@ -419,6 +559,31 @@ namespace Pizza.Controllers
             base.Dispose(disposing);
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<ActionResult> EnableTwoFactorAuthentication()
+        {
+            await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), true);
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            if (user != null)
+            {
+                await SignInAsync(user, isPersistent: false);
+            }
+            return RedirectToAction("Index", "Manage");
+        }
+        //
+        // POST: /Manage/DisableTwoFactorAuthentication
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<ActionResult> DisableTwoFactorAuthentication()
+        {
+            await UserManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), false);
+            var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            if (user != null)
+            {
+                await SignInAsync(user, isPersistent: false);
+            }
+            return RedirectToAction("Index", "Manage");
+        }
+
         #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
@@ -448,7 +613,8 @@ namespace Pizza.Controllers
 
         private bool HasPassword()
         {
-            var user = UserManager.FindById(User.Identity.GetUserId());
+            new AccountController();
+            var user = userManager.FindById(User.Identity.GetUserId());
             if (user != null)
             {
                 return user.PasswordHash != null;

@@ -9,6 +9,21 @@ namespace Pizza.Models
         public string UserName { get; set; }
     }
 
+    public class ResendVerifyCodeViewModel
+    {
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Account E-mail")]
+        public string Email { get; set; }
+    }
+
+    public class VerifyCodeViewModel : ResendVerifyCodeViewModel
+    {
+        [Required]
+        [Display(Name = "Verification Code")]
+        public string Code { get; set; }
+    }
+
     public class ManageUserViewModel
     {
         [Required]
@@ -61,16 +76,21 @@ namespace Pizza.Models
         public string ConfirmPassword { get; set; }
 
         [Required]
-        [Display(Name = "Phone")]
-        public string phone { get; set; }
-
-        [Required]
         [Display(Name = "Email")]
         public string email { get; set; }
 
         [Required]
         [Display(Name = "Address")]
         public string address { get; set; }
+
+        [Required(ErrorMessage = "Country code can't be blank")]
+        [Display(Name = "Country code")]
+        public string CountryCode { get; set; }
+
+        [Required(ErrorMessage = "Phone number can't be blank")]
+        [Display(Name = "Phone number")]
+        public string PhoneNumber { get; set; }
+
 
     }
 }

@@ -11,6 +11,7 @@
     <h4>Create a new account.</h4>
     <hr />
     @Html.ValidationSummary()
+    <input name="CountryCode" class="hidden" value="00"/>
     <div class="form-group">
         @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
@@ -30,9 +31,9 @@
         </div>
     </div>
     <div class="form-group">
-        @Html.LabelFor(m => m.phone, new { @class = "col-md-2 control-label" })
+        @Html.LabelFor(m => m.PhoneNumber, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBoxFor(m => m.phone, new { @class = "form-control", placeholder = "Ex. 049123456" })
+            @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "Ex. 049123456" })
         </div>
     </div>
     <div class="form-group">

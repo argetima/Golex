@@ -25,7 +25,7 @@ namespace Pizza.Controllers
             ApplicationUser user = storeDB.Users.Where(u => u.Id == userId).FirstOrDefault();
             Order o = new Order();
             o.Address = user.address;
-            o.Phone = user.phone;
+            o.Phone = user.PhoneNumber;
             o.Email = user.Email;
 
             return View(o);
@@ -53,12 +53,10 @@ namespace Pizza.Controllers
                     var user = storeDB.Users.Where(u => u.UserName == username).FirstOrDefault();
                     //ShoppingCart ShoppingCart = new ShoppingCart();
 
-                    
-                    
                     order.username = user.UserName;
                     order.datetime = DateTime.Now;
                     order.Address = model.Address;
-                    order.Phone = user.phone;
+                    order.Phone = user.PhoneNumber;
                     order.Email = user.Email;
 
                     //order.Total = ShoppingCart.GetTotal();
