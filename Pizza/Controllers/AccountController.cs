@@ -179,6 +179,9 @@ namespace Pizza.Controllers
 
             if (ModelState.IsValid)
             {
+                Random generator = new Random();
+                String r = generator.Next(0, 1000000).ToString("D6");
+
                 var user = new ApplicationUser() { 
                     UserName = model.UserName, 
                     Email = model.email,
@@ -192,7 +195,8 @@ namespace Pizza.Controllers
                     PhoneNumberConfirmed = false,
                     TwoFactorEnabled = false,
                     LockoutEnabled = false,
-                    AccessFailedCount = 0
+                    AccessFailedCount = 0,
+                    AuthyUserId = r
                 };
                 try
                 {
@@ -200,8 +204,7 @@ namespace Pizza.Controllers
 
                     if (result.Succeeded)
                     {
-
-                        //await UserManager.RequestPhoneNumberConfirmationTokenAsync(user.Id);
+                        await UserManager.RequestPhoneNumberConfirmationTokenAsync(user.Id);
 
                         return RedirectToAction("VerifyRegistrationCode", new { message = ApplicationMessages.VerificationCodeSent });
                     }
